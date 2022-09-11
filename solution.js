@@ -79,7 +79,7 @@ class player{
     enemy.health -= damageAmount
 
     //  Update the game and DOM with updateGame()
-    updateGame(player,enemy,game.isOver)
+    updateGame(p1,p2,game.isOver)
 
     //  Return a message of 'player name attacks enemy name for damageAmount'
     return `${player.name} attacks ${enemy.name} for ${damageAmount} damage!`
@@ -95,7 +95,7 @@ class player{
     player.health += hpAmount
 
     //  Update the game and DOM with updateGame()
-    updateGame(player,p2,game.isOver)
+    updateGame(p1,p2,game.isOver)
 
     //  Return a message of 'player name heals for hpAmount HP'
     return `${player.name} heals for ${hpAmount} HP!`
@@ -114,21 +114,49 @@ class Game {
   constructor(){
     this.isOver = false
   }
-}
-
-  // ** If the game is over and a player has 0 health declare the winner! **
-
+   // ** If the game is over and a player has 0 health declare the winner! **
+  declareWinner(isOver,p1,p2){
+    let message = 'TIE';
+    if(isOver == true && p1.health <= 0){
+      message = `${p2.name} WINS!`
+    } 
+      else if(isOver == true && p2.health <= 0){
+      message = `${p1.name} WINS!`
+    }
+    document.getElementById('victory').play()
+  }
 
   // ** Reset the players health back to it's original state and isOver to FALSE **
-
+  reset(p1,p2){
+    p1.health = 100
+    p2.health = 100
+    this.isOver = false
+    resultDiv.innerText = ''
+    updateGame(p1,p2,this.isOver)
+  }
   
   // ** Simulates the whole match untill one player runs out of health **
- 
+  play(p1,p2){
+    this.reset(p1,p2);
     // Make sure the players take turns untill isOver is TRUE
+    while(!this.isOver){
+      p1.strike(p1,p2,p1.attackDmg)
+      p2.heal(p2)
+      p2.strike(p2,p1,p2.attackDmg)
+      p1.heal(p1)
+    }
+    return this.declareWinner(this.isOver,p1,p2)
+  }
+ 
+  
+    
   
     // Once isOver is TRUE run the declareWinner() method 
    
 
+}
+
+ 
 
 
 // ** Create 2 players using the player class **
@@ -145,24 +173,51 @@ let game = new Game()
 updateGame(p1,p2,game.isOver)
 
 // ** Save original Game Data **
-
+let gameState;
 
 
 // ** Add a click listener to the simulate button that runs the play() method on click and pass in the players **
-
+playButton.onclick = () => resultDiv.innerText = game.play(p1,p2)
 
 
 // ** BONUS **
 // Add functionality where players can press a button to attack OR heal
 
 // ** Player 1 Controls **
+document.addEventListener('keydown',function(e){
+  if(e.key =='q' && p2.health > 0 && game.isOver == false){
+    p1.strike(p1,p2,p1.attackDmg)
+    document.getElementById('p1attack').play()
+  }
+})
 
+document.addEventListener('keydown',function (e) {
+  if(e.key == 'a' && p2.health > 0 ){
+    p1.heal(p1)
+    document.getElementById('p1heal').play()
+  }
+  
+  
+})
 
 
 
 // ** Player 2 Controls **
+document.addEventListener('keydown',function(e){
+  if(e.key == 'p' && p1.health > 0 && game.isOver == false ){
+    p2.strike(p2,p1,p2.attackDmg)
+    document.getElementById('p2attack').play()
+  }
+})
+
+document.addEventListener('keydown',function(e){
+  if(e.key == 'l' && p1.health > 0){
+    p2.heal(p2)
+    document.getElementById('p2heal').play()
+  }
+})
 
 
 
-console.log(p1.heal(p1))
+
 
